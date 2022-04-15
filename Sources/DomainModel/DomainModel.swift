@@ -53,25 +53,25 @@ public class Job {
         case .Hourly(let money):
             return Int(money * Double(arg));
         case .Salary(let money):
-            return Int(money)
+            return Int(money);
         }
     }
     
     func raise(byAmount: Double) {
         switch self.type {
         case .Hourly(let money):
-            self.type = JobType.Hourly(money + byAmount)
+            self.type = JobType.Hourly(money + byAmount);
         case .Salary(let money):
-            self.type = JobType.Salary(money + UInt(Double(byAmount)))
+            self.type = JobType.Salary(money + UInt(Double(byAmount)));
         }
     }
     
     func raise(byPercent: Double) {
         switch self.type {
         case .Hourly(let money):
-            self.type = JobType.Hourly(money + (money * byPercent))
+            self.type = JobType.Hourly(money + (money * byPercent));
         case .Salary(let money):
-            self.type = JobType.Salary(money + UInt(Double(money) * byPercent))
+            self.type = JobType.Salary(money + UInt(Double(money) * byPercent));
         }
     }
 }
@@ -83,12 +83,65 @@ public class Person {
     var firstName: String
     var lastName: String
     var age: Int
-    var job: Job
-    var spouse: Person
+    var _job: Job? = nil
+    var _spouse: Person? = nil
+    
+    var job: Job? {
+        get{
+            return self._job;
+        }
+        set(value) {
+            self._job = value
+        }
+    }
+
+    var spouse: Person? {
+        get {
+            return self._spouse;
+        }
+        set(value) {
+            self._spouse = value
+        }
+    }
+    
+    init(firstName: String, lastName: String, age: Int) {
+        self.firstName = firstName;
+        self.lastName = lastName;
+        self.age = age;
+    }
+    
+    func toString() -> String {
+        return String("[Person: firstName:\(firstName) lastName:\(lastName) age:\(age) job:\(_job) spouse:\(_spouse)]")
+    }
 }
 
 ////////////////////////////////////
 // Family
 //
 public class Family {
+    var members: [Person] = []
+    init(spouse1: Person, spouse2: Person) {
+        spouse1._spouse = spouse2
+        spouse2._spouse = spouse1
+        members.append(spouse1)
+        members.append(spouse2)
+    }
+    
+    func haveChild(_ arg: Person) -> Bool{
+        if members[0].age >= 21 {
+            members.append(arg)
+            return true
+        }
+        return false
+    }
+    
+    func householdIncome() -> Int {
+        var income: Int = 0
+        for i in self.members {
+            if (i._job != nil) {
+                income += i._job?.calculateIncome(2000) ?? 0
+            }
+        }
+        return income
+    }
 }
